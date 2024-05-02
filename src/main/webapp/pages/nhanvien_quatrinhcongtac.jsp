@@ -10,6 +10,7 @@ String duongDanQTCT = request.getScheme() + "://" + request.getServerName() + ":
 %>
 
 <form id="thongtincoban-form">
+	<input type="hidden" name="csrfToken" value="${sessionScope.csrfToken}"/>
 	<div class="row">
 		<div class="col-xl-8">
 			<div class="card mb-4">
@@ -65,6 +66,9 @@ String duongDanQTCT = request.getScheme() + "://" + request.getServerName() + ":
 												</td>
 											</c:if>
 										</tr>
+
+
+
 									</c:forEach>
 								</tbody>
 							</table>
@@ -103,6 +107,9 @@ String duongDanQTCT = request.getScheme() + "://" + request.getServerName() + ":
 	style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);">
 	<form class="form-container"
 		action="<%=duongDanQTCT%>/quatrinhcongtaccontrol">
+
+		<input type="hidden" name="csrfToken" value="${sessionScope.csrfToken}"/>
+
 		<h1>Thông tin quá trình công tác</h1>
 		<input type="hidden" name="action" value="insertQTCT" />
 

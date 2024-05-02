@@ -5,7 +5,6 @@
 <%@ page import="Util.JDBCUtils"%>
 <%@ page import="Models.NhanVien"%>
 <%@ page import="Models.LoginBean"%>
-<%@ page import="Controller.QuanLyNhanSuTrucThuoc"%>
 
 <!DOCTYPE html>
 <html>
@@ -15,18 +14,10 @@
 
 <link rel="stylesheet"
 	href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
-<link rel="stylesheet"
-	href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css">
-
-
 
 <%
 String url = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort()
 		+ request.getContextPath();
-LoginBean acc = (LoginBean) session.getAttribute("accLogin");
-QuanLyNhanSuTrucThuoc test = new QuanLyNhanSuTrucThuoc();
-String phanQuyen = (acc != null) ? test.kiemTraQuyenCaoNhat(acc.getMaNhanvien()) : null;
-
 %>
 
 	<link href="<%=url%>/css/sidebar.css" rel="stylesheet">
@@ -61,6 +52,7 @@ String phanQuyen = (acc != null) ? test.kiemTraQuyenCaoNhat(acc.getMaNhanvien())
 										<tr>
 											<th>Mã nhân viên</th>
 											<th>Quyền hạn</th>
+											<th>Vị trí</th>
 											<th>Hồ sơ</th>
 										</tr>
 									</thead>
@@ -69,6 +61,7 @@ String phanQuyen = (acc != null) ? test.kiemTraQuyenCaoNhat(acc.getMaNhanvien())
 											<tr>
 												<td><c:out value="${bpq.maNV}" /></td>
 												<td><c:out value="${bpq.maQH}" /></td>
+												<td><c:out value="${bpq.viTri}" /></td>
 												<td><a
 													href="<%=url %>/thongtincanhancontrol?action=xemhs&manv=<c:out value='${bpq.maNV}'/>">Xem</a></td>
 											</tr>
@@ -78,12 +71,13 @@ String phanQuyen = (acc != null) ? test.kiemTraQuyenCaoNhat(acc.getMaNhanvien())
 							</div>
 						</div>
 					</div>
-					<%if ("giamdoc".equals(phanQuyen) || "admin".equals(phanQuyen)) {%>
 					<div class="row d-flex justify-content-end">
 						<button class="btn btn-primary btn-lg btnSize"
 								onclick="openForm1()" role="button">Thêm nhân viên vào phòng ban</button>
 					</div>
-					<%}%>
+						
+					
+				
 			</div>
 
 		</div>
@@ -110,6 +104,9 @@ String phanQuyen = (acc != null) ? test.kiemTraQuyenCaoNhat(acc.getMaNhanvien())
 <div class="formpopup" id="myForm1"
 	 style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);">
 	<form class="form-container" action="<%=url%>/quanlynhansutructhuoccontroller">
+
+		<input type="hidden" name="csrfToken" value="${sessionScope.csrfToken}"/>
+
 		<h1>Thêm nhân viên vào phòng ban</h1>
 		<input type="hidden" name="action" value="themnv" />
 

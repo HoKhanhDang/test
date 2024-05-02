@@ -15,8 +15,6 @@
 
 <link rel="stylesheet"
 	href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
-<link rel="stylesheet"
-	href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css">
 
 <%
 String url = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort()
@@ -47,16 +45,10 @@ String url = request.getScheme() + "://" + request.getServerName() + ":" + reque
 				<jsp:include page="../layout/sidebar.jsp"></jsp:include>
 
 			</div>
-			<div class="col-10" id="content">
+			<div class="col-10" id="content" >
 				<jsp:include page="../layout/navbar.jsp"></jsp:include>
-				<div class="row gx-3 mb-3">
-					<div class="col-auto">
-						<button type="button" id="themQTCT"
-							class="open-button btn btn-primary" onclick="openFormQTCT()">
-							Thêm</button>
-					</div>
-				</div>
-				<div id="thongtinhopdong">
+
+				<div id="thongtinhopdong" style="padding-top: 30px">
 					<div class="row">
 						<table class="table table-bordered">
 							<thead>
@@ -66,8 +58,7 @@ String url = request.getScheme() + "://" + request.getServerName() + ":" + reque
 									<th>Mã Quyền Hạn</th>
 									<th>Phòng ban</th>
 									<th>Mã Chi Nhánh</th>
-									<th>Vị trí</th>
-									<th>Thao tác</th>
+
 								</tr>
 							</thead>
 							<tbody>
@@ -78,10 +69,6 @@ String url = request.getScheme() + "://" + request.getServerName() + ":" + reque
 										<td><c:out value="${bangphanquyen.maQH}" /></td>
 										<td><c:out value="${bangphanquyen.maPB}" /></td>
 										<td><c:out value="${bangphanquyen.maCN}" /></td>
-										<td><c:out value="${bangphanquyen.viTri}" /></td>
-										<td><a
-											href="<%=url %>/bangphanquyencontrol?action=delete&mabqp=<c:out value='${bangphanquyen.maPQ}'/>&manv=<c:out value='${bangphanquyen.maNV}'/>">Xóa</a>
-										</td>
 									</tr>
 								</c:forEach>
 							</tbody>
@@ -116,6 +103,9 @@ String url = request.getScheme() + "://" + request.getServerName() + ":" + reque
 	style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);">
 	<form class="form-container"
 		action="<%=url%>/bangphanquyencontrol?action=insertBPQC">
+
+		<input type="hidden" name="csrfToken" value="${sessionScope.csrfToken}"/>
+
 		<h1>Thông tin quá trình công tác</h1>
 		<input type="hidden" name="action" value="insertBPQC" />
 		<div class="row gx-3 mb-3">

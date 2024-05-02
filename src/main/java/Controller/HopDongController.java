@@ -14,7 +14,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import DAO.HoSoDAO;
 import DAO.HopDongDAO;
-import DAO.NhanVienDAO;
 import Models.HoSo;
 import Models.HopDong;
 import Models.NhanVien;
@@ -24,19 +23,28 @@ public class HopDongController extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	HopDongDAO hdDAO = null;
 	HoSoDAO hsDAO = null;
-	private NhanVienDAO nhanvienDAO = null;
-
 
 	public HopDongController() {
 		super();
 		hdDAO = new HopDongDAO();
 		hsDAO = new HoSoDAO();
-		nhanvienDAO = new NhanVienDAO();
 	}
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
+		response.setHeader("X-Content-Type-Options", "nosniff");
+
+		String sessionToken = (String) request.getAttribute("csrfToken");
+		String requestToken = request.getParameter("csrfToken");
+
+		if (sessionToken == null || !sessionToken.equals(requestToken)) {
+			// CSRF token is missing or does not match, block the request
+			response.sendError(HttpServletResponse.SC_FORBIDDEN, "Invalid CSRF token.");
+			return;
+		}
+
 		String action = request.getParameter("action");
+
 
 		System.out.println("Action: " + action);
 		try {
@@ -125,17 +133,6 @@ public class HopDongController extends HttpServlet {
 			hs = hsDAO.selectHoSoByMaNV(maNV);
 		} else {
 			hs = (HoSo) request.getAttribute("hoso");
-		}
-		
-		//Xử lý khi hs null, đẩy ngược lại trang thêm hồ sơ
-		if(hs == null) {
-			String maNV = request.getParameter("manv");
-			NhanVien existingNV = nhanvienDAO.selectNhanVien(maNV);
-			request.setAttribute("nhanvien", existingNV);
-			
-			request.setAttribute("hanhdongthemnhanvien", "hosoForm");
-			RequestDispatcher dispatcher = request.getRequestDispatcher("/pages/themnhanvien.jsp");
-			dispatcher.forward(request, response);
 		}
 
 		List<HopDong> listHopDong = hdDAO.selectAllHopDongTheoMaHS(hs.getMaHS());

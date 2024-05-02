@@ -1,7 +1,6 @@
 package Controller;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
@@ -33,7 +32,18 @@ public class HoSoController extends HttpServlet {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
+		response.setHeader("X-Content-Type-Options", "nosniff");
+
 		String action = request.getParameter("action");
+
+		String sessionToken = (String) request.getAttribute("csrfToken");
+		String requestToken = request.getParameter("csrfToken");
+
+		if (sessionToken == null || !sessionToken.equals(requestToken)) {
+			// CSRF token is missing or does not match, block the request
+			response.sendError(HttpServletResponse.SC_FORBIDDEN, "Invalid CSRF token.");
+			return;
+		}
 
 		System.out.println("Action: " + action);
 		try {
@@ -47,6 +57,9 @@ public class HoSoController extends HttpServlet {
 			case "edit":
 				showEditForm(request,response);
 				break;
+			case "import":
+				importFromExcel(request,response,"D:/hoso.xlsx");
+				break;
 			default:
 				RequestDispatcher dispatcher = request.getRequestDispatcher("pages/login.jsp");
 				dispatcher.forward(request, response);
@@ -57,6 +70,22 @@ public class HoSoController extends HttpServlet {
 		}
 	}
 
+	public void importFromExcel(HttpServletRequest request, HttpServletResponse response, String filePath)  throws SQLException, IOException, ServletException  {
+	    try {
+	        List<HoSo> hoSoList = ExcelImporter.importFromExcelHoSo(filePath);
+
+	        for (HoSo hoSo : hoSoList) {
+	        	hsDAO.insertHoSo(hoSo);
+	        }
+
+	        System.out.println("Dữ liệu đã được import thành công.");
+	        NhanVienController nvControl = new NhanVienController();
+	        nvControl.listNhanVien(request, response);
+	    } catch (IOException e) {
+	        e.printStackTrace();
+	        System.out.println("Có lỗi khi import dữ liệu từ Excel.");
+	    }
+	}
 	
 	private void updateHoSo(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException {
 	    try {
@@ -87,18 +116,10 @@ public class HoSoController extends HttpServlet {
 	                gioiTinh, quocTich, danToc, tonGiao, ngaySinh, noiSinh, diaChi, tinhThanh, quanHuyen, phuongXa,
 	                emailCaNhan, tinhTrangHN, trinhDoVanHoa, trinhDoHocVan);
 	        
-	        if(maHS != null)
-	        {
-		        hsDAO.updateHoSo(updateHoSo);
-		        
-		        NhanVienController nvControl = new NhanVienController();
-		        nvControl.listNhanVien(request, response);
-	        }
-	        else {
-	            PrintWriter printWriter = response.getWriter();
-	            printWriter.println("Lấy hồ sơ thất bại");
-	        }
+	        hsDAO.updateHoSo(updateHoSo);
 
+	        NhanVienController nvControl = new NhanVienController();
+	        nvControl.listNhanVien(request, response);
 	        	
 	    } catch (Exception e) {
 	        e.printStackTrace();
@@ -129,8 +150,8 @@ public class HoSoController extends HttpServlet {
 			String phuongXa = request.getParameter("ward");
 			String emailCaNhan = request.getParameter("inputEmailCN");
 			String tinhTrangHN = request.getParameter("cbbTinhTrangHonNhan");
-			String trinhDoHocVan = request.getParameter("cbbTrinhDoHV");
-			String trinhDoVanHoa = request.getParameter("cbbTrinhDoVH");
+			String trinhDoVanHoa = request.getParameter("cbbTrinhDoHV");
+			String trinhDoHocVan = request.getParameter("inputTrinhDoVH");
 
 			HoSo newHoSo = new HoSo(maHS, maNV, cccd, noiCapCCCD, ngayCapCCCD, maSoThue, ngayCapMST, soDienThoai,
 					gioiTinh, quocTich, danToc, tonGiao, ngaySinh, noiSinh, diaChi, tinhThanh, quanHuyen, phuongXa,
@@ -152,36 +173,16 @@ public class HoSoController extends HttpServlet {
 		String maNV = request.getParameter("manv");
 
 		HoSo existingHS = hsDAO.selectHoSoByMaNV(maNV);
-		System.out.println(existingHS);
+		request.setAttribute("hoso", existingHS);
+
 
 		NhanVien existingNV = nvDAO.selectNhanVien(maNV);
-		if(existingHS != null)
-		{
-			request.setAttribute("hoso", existingHS);
+		request.setAttribute("nhanvien", existingNV);
+		request.setAttribute("hanhdongthemnhanvien", "hosoForm");
+		request.setAttribute("hanhdongtacdong", "edit");
 
-			request.setAttribute("nhanvien", existingNV);
-			request.setAttribute("hanhdongthemnhanvien", "hosoForm");
-			request.setAttribute("hanhdongtacdong", "edit");
-
-			RequestDispatcher dispatcher = request.getRequestDispatcher("/pages/themnhanvien.jsp");
-			dispatcher.forward(request, response);
-		}
-		else if(existingHS == null)
-		{
-			String maHS = request.getParameter("inputMaHS");
-
-			HoSo hsNull = new HoSo(maHS, existingNV.getMaNV(), null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
-			request.setAttribute("hoso", hsNull);
-
-			request.setAttribute("nhanvien", existingNV);
-			request.setAttribute("hanhdongthemnhanvien", "hosoForm");
-			request.setAttribute("hanhdongtacdong", "edit");
-			
-			RequestDispatcher dispatcher = request.getRequestDispatcher("/pages/themnhanvien.jsp");
-			dispatcher.forward(request, response);
-		}
-
-
+		RequestDispatcher dispatcher = request.getRequestDispatcher("/pages/themnhanvien.jsp");
+		dispatcher.forward(request, response);
 	}
 	
 

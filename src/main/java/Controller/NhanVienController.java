@@ -1,18 +1,17 @@
 package Controller;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
-import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import javax.servlet.http.Part;
 
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
@@ -24,12 +23,6 @@ import DAO.TaiKhoanDAO;
 import Models.TaiKhoan;
 
 @WebServlet("/nhanviencontrol")
-@MultipartConfig(
-	    fileSizeThreshold = 1024 * 1024 * 2,  // 2MB
-	    maxFileSize = 1024 * 1024 * 10,       // 10MB
-	    maxRequestSize = 1024 * 1024 * 50     // 50MB
-	)
-
 public class NhanVienController extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private NhanVienDAO nhanvienDAO;
@@ -42,8 +35,21 @@ public class NhanVienController extends HttpServlet {
 		taikhoanDAO = new TaiKhoanDAO();
 	}
 
+	
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
+		response.setContentType("text/html"); // Set Content-Type header
+		response.setHeader("X-Content-Type-Options", "nosniff");
+
+
+		String sessionToken = (String) request.getAttribute("csrfToken");
+		String requestToken = request.getParameter("csrfToken");
+
+		if (sessionToken == null || !sessionToken.equals(requestToken)) {
+			// CSRF token is missing or does not match, block the request
+			response.sendError(HttpServletResponse.SC_FORBIDDEN, "Invalid CSRF token.");
+			return;
+		}
 
 		HttpSession session = request.getSession();
 		String action = null;
@@ -57,6 +63,7 @@ public class NhanVienController extends HttpServlet {
 			filePath = request.getParameter("filePath");
 			System.out.println("Action from request parameter: " + action);
 			System.out.println("parameter: " + filePath);
+
 		}
 
 		System.out.println("Action: " + action);
@@ -74,26 +81,8 @@ public class NhanVienController extends HttpServlet {
 			case "list":
 				listNhanVien(request, response);
 				break;
-			default:
-				RequestDispatcher dispatcher = request.getRequestDispatcher("pages/login.jsp");
-				dispatcher.forward(request, response);
-				break;
-			}
-		} catch (SQLException ex) {
-			throw new ServletException(ex);
-		}
-	}
-	
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		String action = request.getParameter("action");
-		System.out.println(action);
-		try {
-			switch (action) {
-			case "insert":
-				themNhanVien(request,response);
-				break;
-			case "update":
-				capNhapNhanVien(request,response);
+			case "import":
+				importFromExcel(request,response,"D:/nhanvien.xlsx");
 				break;
 			default:
 				RequestDispatcher dispatcher = request.getRequestDispatcher("pages/login.jsp");
@@ -104,91 +93,224 @@ public class NhanVienController extends HttpServlet {
 			throw new ServletException(ex);
 		}
 	}
-	
-	private void themNhanVien(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException, ServletException  {
-		try {
-			String maNV = request.getParameter("inputMaNV");
-			String hoTenNV = request.getParameter("inputHoTen");
-			float luongCoBan = Float.parseFloat(request.getParameter("inputLuongCoBan"));
-			String emailCV = request.getParameter("inputEmailCV");
-			String trangThaiCV = request.getParameter("cbbTrangThai");
-			String duongDanAnh = luuFileAnh("inputDuongDanAnh",request,response);
-			
-			NhanVien newNV = new NhanVien(maNV, hoTenNV, luongCoBan, emailCV, trangThaiCV, duongDanAnh);
-			nhanvienDAO.insertNhanVien(newNV);
-			taikhoanDAO.insertTK(new TaiKhoan(maNV, "1", maNV));
-			if (newNV != null) {
-				request.setAttribute("nhanvien", newNV);
-				request.setAttribute("hanhdongthemnhanvien", "hosoForm");
-				RequestDispatcher dispatcher = request.getRequestDispatcher("/pages/themnhanvien.jsp");
-				dispatcher.forward(request, response);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
 
-	private void capNhapNhanVien(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException, ServletException  {
-		try {
-			String maNV = request.getParameter("inputMaNV");
-			String hoTenNV = request.getParameter("inputHoTen");
-			float luongCoBan = Float.parseFloat(request.getParameter("inputLuongCoBan"));
-			String emailCV = request.getParameter("inputEmailCV");
-			String trangThaiCV = request.getParameter("cbbTrangThai");
+    public void importFromExcel(HttpServletRequest request, HttpServletResponse response,String filePath) throws SQLException, IOException, ServletException {
+        try {
+            List<NhanVien> nhanVienList = ExcelImporter.importFromExcelNV(filePath);
 
-			Part filePart = request.getPart("inputDuongDanAnh");
-			if(filePart.getSize()> 0)
-			{
-				String duongDanAnh = luuFileAnh("inputDuongDanAnh",request,response);
-				NhanVien nv = new NhanVien(maNV, hoTenNV, luongCoBan, emailCV, trangThaiCV, duongDanAnh);
-				nhanvienDAO.updateNhanVien(nv);
-			}
-			else
-			{
-				NhanVien nv = new NhanVien(maNV, hoTenNV, luongCoBan, emailCV, trangThaiCV);
-				nhanvienDAO.updateNhanVienKhongAnh(nv);
-			}
-			System.out.println("Đang them nhân viên" + hoTenNV);
-			listNhanVien(request,response);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-	
-	public String luuFileAnh(String nameInput,HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException
-	{
-		Part filePart = request.getPart(nameInput);
-		String maNV = request.getParameter("inputMaNV");
-		String fileName = maNV+".jpg";
-		
-		// Xác định tên thư mục lưu trữ file trong project
-		String uploadDirectory = "AnhCaNhan/";
-		
-		// Lấy đường dẫn thực tế của thư mục lưu trữ file
-		String appPath = request.getServletContext().getRealPath("");
-		String savePath = appPath + uploadDirectory + fileName;
-		System.out.println(savePath);
-		
-		//thực hiện việc lưu
-		InputStream inputStream = filePart.getInputStream();
-		FileOutputStream outputStream = new FileOutputStream(savePath);
-		int bytesRead = -1;
-		byte[] buffer = new byte[1024];
-        while ((bytesRead = inputStream.read(buffer)) != -1) {
-            outputStream.write(buffer, 0, bytesRead);
+            for (NhanVien nhanVien : nhanVienList) {
+            	nhanvienDAO.insertNhanVien(nhanVien);
+            	TaiKhoan newTK = new TaiKhoan(nhanVien.getMaNV(),"1",nhanVien.getMaNV());
+            	taikhoanDAO.insertTK(newTK);
+            }
+
+            System.out.println("Dữ liệu đã được import thành công.");
+			listNhanVien(request, response);
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.out.println("Có lỗi khi import dữ liệu từ Excel.");
         }
-		outputStream.close();
-		inputStream.close();
-		
-		return fileName;
-	}
-	
-
+    }
 	
 	private void deleteNhanVien(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException {
 		String maNV = request.getParameter("manv");
 		nhanvienDAO.deleteNhanVien(maNV);
 		response.sendRedirect("list");
+	}
+	
+	protected void doPost(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+		System.out.println("-- Do Post--");
+		boolean isMultipart = ServletFileUpload.isMultipartContent(request);
+		String action = null;
+
+		if (isMultipart) {
+			handleFormMultipart(request);
+			action = getActionFormMultipart(request);
+			if ("insert".equals(action)) {
+				themNhanVienMultipart(request, response);
+				return;
+			}
+			else if ("update".equals(action)) {
+				capNhatNhanVienMultipart(request, response);
+				return;}
+		} else {
+			action = request.getParameter("action");
+		}
+		System.out.println(action);
+	}
+
+	private void handleFormMultipart(HttpServletRequest request) {
+		try {
+			String folder = getServletContext().getRealPath("AnhCaNhan");
+			System.out.println(folder);
+			int maxFileSize = 5000 * 1024;
+			int maxMemSize = 5000 * 1024;
+			String contentType = request.getContentType();
+			if (contentType != null && contentType.indexOf("multipart/form-data") >= 0) {
+				DiskFileItemFactory factory = new DiskFileItemFactory();
+				factory.setSizeThreshold(maxMemSize);
+				ServletFileUpload upload = new ServletFileUpload(factory);
+				upload.setSizeMax(maxFileSize);
+				files = upload.parseRequest(request);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	private String getActionFormMultipart(HttpServletRequest request) {
+		String actionValue = null;
+		try {
+			String contentType = request.getContentType();
+
+			if (contentType.indexOf(contentType) >= 0) {
+				System.out.println("Bắt đầu test");
+				for (FileItem item : files) {
+					if (item.isFormField()) {
+						String fieldName = item.getFieldName();
+						String value = item.getString();
+
+						System.out.println(fieldName + " : " + value);
+
+						if ("insert".equals(value) && "action".equals(fieldName)) {
+							actionValue = "insert";
+							break;
+						}
+						else if ("update".equals(value) && "action".equals(fieldName)) {
+							actionValue = "update";
+							break;
+						}
+						
+					} else {
+						continue;
+					}
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return actionValue;
+	}
+
+	private void capNhatNhanVienMultipart(HttpServletRequest request, HttpServletResponse response) {
+	    try {
+	        String folder = getServletContext().getRealPath("AnhCaNhan");
+			System.out.println(folder);
+	        File file;
+
+	        String contentType = request.getContentType();
+	        if (contentType != null && contentType.indexOf("multipart/form-data") >= 0) {
+	            String maNv = null;
+	            String hoTen = null;
+	            float luongCoBan = 0.0f;
+	            String emailCV = null;
+	            String trangThai = null;
+	            String duongDanAnh = null;
+
+	            for (FileItem fileItem : files) {
+	                if (!fileItem.isFormField()) {
+	                    String fileName = System.currentTimeMillis() + fileItem.getName();
+	                    String path = folder + "\\" + fileName;
+	                    file = new File(path);
+	                    fileItem.write(file);
+
+	                    duongDanAnh = fileName;
+	                } else {
+	                    String name = fileItem.getFieldName();
+	                    String value = fileItem.getString();
+
+	                    if ("inputMaNV".equals(name)) {
+	                        maNv = value;
+	                    } else if ("inputHoTen".equals(name)) {
+	                        hoTen = value;
+	                    } else if ("inputLuongCoBan".equals(name)) {
+	                        luongCoBan = Float.parseFloat(value);
+	                    } else if ("inputEmailCV".equals(name)) {
+	                        emailCV = value;
+	                    } else if ("cbbTrangThai".equals(name)) {
+	                        trangThai = value;
+	                    }
+	                }
+	            }
+	            NhanVien updatedNV = new NhanVien(maNv, hoTen, luongCoBan, emailCV, trangThai, duongDanAnh);
+
+	            nhanvienDAO.updateNhanVien(updatedNV);
+	            if (updatedNV != null) {
+					request.setAttribute("action", "list");
+					RequestDispatcher dispatcher = request.getRequestDispatcher("/pages/themnhanvien.jsp");
+					dispatcher.forward(request, response);
+	            }
+	        }
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	    }
+	}
+
+	
+	private void themNhanVienMultipart(HttpServletRequest request, HttpServletResponse response) {
+		try {
+			String folder = getServletContext().getRealPath("AnhCaNhan");
+			System.out.println(folder);
+			File file;
+
+			String contentType = request.getContentType();
+			System.out.println(contentType);
+			if (contentType.indexOf(contentType) >= 0) {
+				String maNv = null;
+				String hoTen = null;
+				float luongCoBan = 0.0f;
+				String emailCV = null;
+				String trangThai = null;
+				String duongDanAnh = null;
+				System.out.println("Bắt đầu test");
+
+				for (FileItem fileItem : files) {
+					if (!fileItem.isFormField()) {
+						String fileName = System.currentTimeMillis() + fileItem.getName();
+						String path = folder + "\\" + fileName;
+						file = new File(path);
+						fileItem.write(file);
+
+						duongDanAnh = fileName;
+						System.out.println(duongDanAnh + "Test");
+
+					} else {
+						String name = fileItem.getFieldName();
+						String value = fileItem.getString();
+						System.out.println(name + " : " + value);
+						if ("inputMaNV".equals(name)) {
+							maNv = value;
+							System.out.println("Kiểm tra có vào if hay không");
+						} else if ("inputHoTen".equals(name)) {
+							hoTen = value;
+							System.out.println("Kiểm tra có vào if hay không");
+						} else if ("inputLuongCoBan".equals(name)) {
+							luongCoBan = Float.parseFloat(value);
+						} else if ("inputEmailCV".equals(name)) {
+							emailCV = value;
+						} else if ("cbbTrangThai".equals(name)) {
+							trangThai = value;
+						}
+					}
+				}
+				System.out.println(maNv + " : " + hoTen);
+				NhanVien newNV = new NhanVien(maNv, hoTen, luongCoBan, emailCV, trangThai, duongDanAnh);
+				TaiKhoan newTK = new TaiKhoan(maNv, "1", maNv);
+				nhanvienDAO.insertNhanVien(newNV);
+				TaiKhoanDAO tkDao = new TaiKhoanDAO();
+				tkDao.insertTK(newTK);
+				
+				if (newNV != null) {
+					request.setAttribute("nhanvien", newNV);
+					request.setAttribute("hanhdongthemnhanvien", "hosoForm");
+					RequestDispatcher dispatcher = request.getRequestDispatcher("/pages/themnhanvien.jsp");
+					dispatcher.forward(request, response);
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	public void listNhanVien(HttpServletRequest request, HttpServletResponse response)
@@ -198,7 +320,6 @@ public class NhanVienController extends HttpServlet {
 		RequestDispatcher dispatcher = request.getRequestDispatcher("pages/danhsachnhanvien.jsp");
 		dispatcher.forward(request, response);
 	}
-	
 
 	private void showEditForm(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {

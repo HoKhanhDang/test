@@ -14,8 +14,7 @@
 
 <link rel="stylesheet"
 	href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
-<link rel="stylesheet"
-	href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css">
+
 
 <%
 String duongDanIndex = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort()

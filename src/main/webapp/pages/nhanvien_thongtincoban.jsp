@@ -7,11 +7,14 @@
 String url1 = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort()
 		+ request.getContextPath();
 %>
-<form class="form"
+<form id="thongtincoban-form" class="form"
 	action="<%=url1%>/nhanviencontrol" method="post"
 	enctype="multipart/form-data">
-	
+
+	<input type="hidden" name="csrfToken" value="${sessionScope.csrfToken}"/>
+
 	<div class="row">
+
 		<c:if test="${hanhdongtacdong == 'edit'}">
 			<input type="hidden" name="action" value="update" />
 			<h1>Sửa thông tin</h1>
@@ -20,50 +23,32 @@ String url1 = request.getScheme() + "://" + request.getServerName() + ":" + requ
 			<input type="hidden" name="action" value="insert" />
 			<h1>Thêm nhân viên</h1>
 		</c:if>
-
+		
+ 		<!--
 		<div class="col-xl-4">
 			<div class="card mb-4 mb-xl-0">
 				<div class="card-header">Profile Picture</div>
-				<c:if test="${hanhdongtacdong == 'xemthongtincanhan'}">
-					    <div class="card-body text-center">
-					        <input type="text" class="form-control" id="inputDuongDanAnh"
-					               name="inputDuongDanAnh" value="<%=url1%>/AnhCaNhan/<c:out value='${nhanvien.duongDanAnh}' />" readonly style="display: none;"> 
-					        <label for="inputDuongDanAnh">Ảnh Cá Nhân: </label> <br> 
-					        <img id="previewImage"
-					             src="<%=url1%>/AnhCaNhan/<c:out value='${nhanvien.duongDanAnh}' />"
-					             alt="Preview" style="max-width: 100%; max-height: 200px;">
-					    </div>
-				</c:if>
-				<c:if test="${hanhdongtacdong == 'edit'}">
-					<div class="card-body text-center">
-						<input type="file" class="form-control" id="inputDuongDanAnh"
-							name="inputDuongDanAnh" onchange="showImage(this);"
-							value=""> 
-							<label
-							for="inputDuongDanAnh">Ảnh Cá Nhân: </label> <br> <img
-							id="previewImage"
-							src="<%=url1%>/AnhCaNhan/<c:out value='${nhanvien.duongDanAnh}' />"
-							alt="Preview" style="max-width: 100%; max-height: 200px;">
-					</div>
-				</c:if>
-				<c:if test="${empty hanhdongtacdong}">
-					<div class="card-body text-center">
-						<input type="file" class="form-control" id="inputDuongDanAnh"
-							name="inputDuongDanAnh" onchange="showImage(this);"
-							value="<%=url1%>/AnhCaNhan/<c:out value='${nhanvien.duongDanAnh}' />"> 
-							<label
-							for="inputDuongDanAnh">Ảnh Cá Nhân: </label> <br> <img
-							id="previewImage"
-							src="<%=url1%>/AnhCaNhan/<c:out value='${nhanvien.duongDanAnh}' />"
-							alt="Preview" style="max-width: 100%; max-height: 200px;">
-					</div>
-				</c:if>
+				
+				<div class="card-body text-center">
+					<input type="file" class="form-control" id="inputDuongDanAnh"
+						name="inputDuongDanAnh" onchange="showImage(this);"
+						value="<%=url1%>/AnhCaNhan/<c:out value='${nhanvien.duongDanAnh}' />"> 
+						<label
+						for="inputDuongDanAnh">Ảnh Cá Nhân: </label> <br> <img
+						id="previewImage"
+						src="<%=url1%>/AnhCaNhan/<c:out value='${nhanvien.duongDanAnh}' />"
+						alt="Preview" style="max-width: 100%; max-height: 200px;">
+				</div>
+				
 			</div>
 		</div>
+		-->
+		
 		<div class="col-xl-8">
 			<div class="card mb-4">
 				<div class="card-header">Thông tin nhân viên</div>
 				<div class="card-body">
+					<input type="hidden" name="action" value="insert" />
 					<div class="mb-3">
 						<c:if test="${hanhdongtacdong == 'xemthongtincanhan'}">
 							<label class="small mb-1" for="inputMaNV">Mã nhân viên</label>
@@ -98,12 +83,13 @@ String url1 = request.getScheme() + "://" + request.getServerName() + ":" + requ
 							<label class="small mb-1" for="inputLuongCoBan">Lương cơ
 								bản</label>
 							<c:set var="formattedLuongCoBan"
-								value="${String.format('%.0f', nhanvien.luongCoBan)}" />
+								value="${String.format('%.2f', nhanvien.luongCoBan)}" />
 							<input class="form-control" id="inputLuongCoBan"
 								name="inputLuongCoBan" type="text" placeholder=""
 								value="<c:out value='${formattedLuongCoBan}'/>">
 						</div>
 
+						<!-- Form Group (location)-->
 						<div class="col-md-6 mt-auto">
 							<label class="small mb-1 fs-10">VNĐ</label>
 						</div>
@@ -116,8 +102,7 @@ String url1 = request.getScheme() + "://" + request.getServerName() + ":" + requ
 					</div>
 					<div class="row gx-3 mb-3">
 						<div class="col-md-6">
-							<label class="small mb-1" for="cbbTrangThai">Trạng thái</label> 
-							<select
+							<label class="small mb-1" for="cbbTrangThai">Trạng thái</label> <select
 								class="form-control" id="cbbTrangThai" name="cbbTrangThai">
 								<option value="active"
 									${nhanvien.trangThai eq 'active' ? 'selected' : ''}>Active</option>
@@ -126,15 +111,18 @@ String url1 = request.getScheme() + "://" + request.getServerName() + ":" + requ
 							</select>
 						</div>
 					</div>
-					
 					<c:if test="${hanhdongtacdong == 'xemthongtincanhan'}">
 					</c:if>
-					<c:if test="${hanhdongtacdong != 'xemthongtincanhan'}">
+					<c:if test="${hanhdongtacdong == 'edit'}">
 						<div class="d-flex justify-content-end">
 							<button type="submit" class="btn btn-primary">Xác nhận</button>
 						</div>
 					</c:if>
-
+					<c:if test="${empty hanhdongtacdong}">
+						<div class="d-flex justify-content-end">
+							<button type="submit" class="btn btn-primary">Xác nhận</button>
+						</div>
+					</c:if>
 
 				</div>
 			</div>
@@ -155,5 +143,6 @@ String url1 = request.getScheme() + "://" + request.getServerName() + ":" + requ
 			reader.readAsDataURL(fileInput.files[0]);
 		}
 	}
+	
 
 </script>

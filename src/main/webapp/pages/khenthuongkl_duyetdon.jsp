@@ -14,8 +14,7 @@
 
 <link rel="stylesheet"
 	href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
-<link rel="stylesheet"
-	href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css">
+
 
 <%
 String duongDanIndex = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort()
@@ -50,7 +49,7 @@ String duongDanIndex = request.getScheme() + "://" + request.getServerName() + "
 			</div>
 			<div class="col-10" id="content">
 				<jsp:include page="../layout/navbar.jsp"></jsp:include>
-				<h1 class="text-center mb-5">Duyệt đơn kỷ luật & khiếu nại</h1>
+				<h1 class="text-center mb-5">Duyệt đơn khen thưởng & khiếu nại</h1>
 
 				<table id="employeeTable"
 					class="table table-bordered border-primary table-fixed"
@@ -112,7 +111,7 @@ String duongDanIndex = request.getScheme() + "://" + request.getServerName() + "
 	<script
 		src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
-	<script type="text/javascript" src="../js/TaoDonKTKL.js"></script>
+
 	<script type="text/javascript" src="../js/main.js">
 		
 	</script>
@@ -128,6 +127,7 @@ String duongDanIndex = request.getScheme() + "://" + request.getServerName() + "
 <div class="formpopup" id="myForm1"
 	style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);">
 	<form class="form-container" action="<%=duongDanIndex%>/ktkl">
+		<input type="hidden" name="csrfToken" value="${sessionScope.csrfToken}"/>
 		<h1>Duyệt</h1>
 		<input type="hidden" name="action" value="duyetDonKT" />
 
@@ -175,6 +175,7 @@ String duongDanIndex = request.getScheme() + "://" + request.getServerName() + "
 <div class="formpopup" id="myForm2"
 	style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);">
 	<form class="form-container" action="<%=duongDanIndex%>/ktkl">
+		<input type="hidden" name="csrfToken" value="${sessionScope.csrfToken}"/>
 		<h1>Xóa</h1>
 		<input type="hidden" name="action" value="xoaDuyet" />
 

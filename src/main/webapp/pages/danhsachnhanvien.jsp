@@ -1,5 +1,5 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+	pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <%@ page import="Util.JDBCUtils"%>
@@ -14,8 +14,7 @@
 
 <link rel="stylesheet"
 	href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
-<link rel="stylesheet"
-	href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css">
+
 
 <%
 String url = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort()
@@ -58,7 +57,6 @@ String url = request.getScheme() + "://" + request.getServerName() + ":" + reque
 							class="btn btn-primary" tabindex="-1" role="button"
 							aria-disabled="true">Thêm nhân viên</a>
 					</div>
-					<!-- 
 					<div class="col-md-4 offset-md-4 d-flex">
 						<div class="ms-auto">
 							<button class="btn btn-success"
@@ -71,7 +69,6 @@ String url = request.getScheme() + "://" + request.getServerName() + ":" + reque
 								Hồ Sợ</button>
 						</div>
 					</div>
-					-->
 				</div>
 				<div class="row">
 					<table class="table table-bordered">
@@ -83,7 +80,6 @@ String url = request.getScheme() + "://" + request.getServerName() + ":" + reque
 								<th>Email công việc</th>
 								<th>Trạng thái</th>
 								<th>Chi tiết thông tin</th>
-								<th>Ảnh cá nhân</th>
 								<th>Thao tác</th>
 							</tr>
 						</thead>
@@ -105,9 +101,6 @@ String url = request.getScheme() + "://" + request.getServerName() + ":" + reque
 											trình công tác</a> <br> <a
 										href="<%=url %>/taikhoancontrol?action=laythongtintk&manv=<c:out value='${nhanvien.maNV}'/>">Tài khoản</a>
 										<br></td>
-									<td><img
-										src="<%=url%>/AnhCaNhan/<c:out value='${nhanvien.duongDanAnh}' />"
-										width="100" height="80" /></td>
 									<td><a
 										href="<%=url %>/nhanviencontrol?action=edit&manv=<c:out value='${nhanvien.maNV}' />">Edit</a>
 										&nbsp;&nbsp;&nbsp;&nbsp;</td>

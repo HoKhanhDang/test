@@ -33,9 +33,28 @@ public class QuaTrinhCongTacController extends HttpServlet {
 		hsDAO = new HoSoDAO();
 		nhanvienDAO = new NhanVienDAO();
 	}
+	protected void doPost(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+		response.setContentType("text/html"); // Set Content-Type header
+		response.setHeader("X-Content-Type-Options", "nosniff");
 
+		String sessionToken = (String) request.getAttribute("csrfToken");
+		String requestToken = request.getParameter("csrfToken");
+
+		if (sessionToken == null || !sessionToken.equals(requestToken)) {
+			// CSRF token is missing or does not match, block the request
+			response.sendError(HttpServletResponse.SC_FORBIDDEN, "Invalid CSRF token.");
+			return;
+		}
+
+		doGet(request, response);
+	}
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
+
+		response.setContentType("text/html"); // Set Content-Type header
+		response.setHeader("X-Content-Type-Options", "nosniff");
+
 		String action = request.getParameter("action");
 
 		System.out.println("Action: " + action);
@@ -61,11 +80,6 @@ public class QuaTrinhCongTacController extends HttpServlet {
 		} catch (SQLException ex) {
 			throw new ServletException(ex);
 		}
-	}
-
-	protected void doPost(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
-		doGet(request, response);
 	}
 
 
@@ -108,7 +122,6 @@ public class QuaTrinhCongTacController extends HttpServlet {
 	private void listQTCT(HttpServletRequest request, HttpServletResponse response, String action)
 			throws SQLException, IOException, ServletException {
 		HoSo hs = null;
-
 		if ("edit".equals(action)) {
 			String maNV = request.getParameter("manv");
 			System.out.println(maNV);
@@ -120,20 +133,7 @@ public class QuaTrinhCongTacController extends HttpServlet {
 		} else {
 			hs = (HoSo) request.getAttribute("hoso");
 		}
-			
-		System.out.println("Hồ sơ QTCT: " +  hs);
-		
-		//Xử lý khi hs null, đẩy ngược lại trang thêm hồ sơ
-		if(hs == null) {
-			String maNV = request.getParameter("manv");
-			NhanVien existingNV = nhanvienDAO.selectNhanVien(maNV);
-			request.setAttribute("nhanvien", existingNV);
-			
-			request.setAttribute("hanhdongthemnhanvien", "hosoForm");
-			RequestDispatcher dispatcher = request.getRequestDispatcher("/pages/themnhanvien.jsp");
-			dispatcher.forward(request, response);
-		}
-		
+
 		List<QuaTrinhCongTac> listQTCT = qtctDAO.selectAllQTCTTheoMaHS(hs.getMaHS());
 		request.setAttribute("listQTCT", listQTCT);
 

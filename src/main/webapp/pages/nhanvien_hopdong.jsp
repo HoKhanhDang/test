@@ -9,6 +9,7 @@ String duongDanHopDong = request.getScheme() + "://" + request.getServerName() +
 		+ request.getContextPath();
 %>
 <form id="hopdong-form">
+	<input type="hidden" name="csrfToken" value="${sessionScope.csrfToken}"/>
 	<div class="row">
 		<div class="col-xl-8">
 			<!-- Account details card-->
@@ -111,6 +112,9 @@ String duongDanHopDong = request.getScheme() + "://" + request.getServerName() +
 	style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);">
 	<form class="form-container"
 		action="<%=duongDanHopDong%>/hopdongcontrol">
+
+		<input type="hidden" name="csrfToken" value="${sessionScope.csrfToken}"/>
+
 		<h1>Thông tin Hợp Đồng</h1>
 		<input type="hidden" name="action" value="insertHD" />
 		<div class="row gx-3 mb-3">

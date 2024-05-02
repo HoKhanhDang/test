@@ -1,5 +1,8 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
+<%
+	response.setHeader("X-Content-Type-Options", "nosniff");
+%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <%@ page import="Util.JDBCUtils"%>
@@ -13,8 +16,7 @@
 
 <link rel="stylesheet"
 	href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
-<link rel="stylesheet"
-	href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css">
+
 
 <%
 String duongDanIndex = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort()
@@ -42,7 +44,7 @@ String duongDanIndex = request.getScheme() + "://" + request.getServerName() + "
 
 				<form action="<%=duongDanIndex%>/taikhoancontrol">
 						<input type="hidden" name="action" value="doimatkhau" />
-				
+					<input type="hidden" name="csrfToken" value="${sessionScope.csrfToken}"/>
 					<div class="form-outline form-white mb-4">
 						<input type="text" id="typeEmailX"
 							class="form-control form-control-lg" name="username" /> <label

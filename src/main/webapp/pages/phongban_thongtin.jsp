@@ -1,5 +1,8 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
+<%
+	response.setHeader("X-Content-Type-Options", "nosniff");
+%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <%@ page import="Util.JDBCUtils"%>
@@ -13,8 +16,7 @@
 
 <link rel="stylesheet"
 	href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
-<link rel="stylesheet"
-	href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css">
+
 
 <%
 String duongDanIndex = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort()
@@ -118,6 +120,8 @@ String duongDanIndex = request.getScheme() + "://" + request.getServerName() + "
 		<h1>Tạo phòng ban</h1>
 		<input type="hidden" name="action" value="taoPB" />
 
+		<input type="hidden" name="csrfToken" value="${sessionScope.csrfToken}"/>
+
 		<div class="row gx-3 mb-3">
 			<div class="col-md-3">
 				<label class="small mb-1" for="mapb_input1">Mã phòng ban</label> <input
@@ -150,6 +154,7 @@ String duongDanIndex = request.getScheme() + "://" + request.getServerName() + "
 <div class="formpopup" id="myForm2"
 	style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);">
 	<form class="form-container" action="<%=duongDanIndex%>/phongban">
+		<input type="hidden" name="csrfToken" value="${sessionScope.csrfToken}"/>
 		<h1>Chỉnh sửa phòng ban</h1>
 		<input type="hidden" name="action" value="suaPB" />
 
@@ -196,6 +201,7 @@ String duongDanIndex = request.getScheme() + "://" + request.getServerName() + "
 <div class="formpopup" id="myForm3"
 	style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);">
 	<form class="form-container" action="<%=duongDanIndex%>/phongban">
+		<input type="hidden" name="csrfToken" value="${sessionScope.csrfToken}"/>
 		<h1>Xem khiếu nại</h1>
 		<input type="hidden" name="action" value="capnhatGDPB" />
 
@@ -223,6 +229,7 @@ String duongDanIndex = request.getScheme() + "://" + request.getServerName() + "
 <div class="formpopup" id="myForm4"
 	style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);">
 	<form class="form-container" action="<%=duongDanIndex%>/phongban">
+		<input type="hidden" name="csrfToken" value="${sessionScope.csrfToken}"/>
 		<h1>Xóa</h1>
 		<input type="hidden" name="action" value="xoaPB" />
 

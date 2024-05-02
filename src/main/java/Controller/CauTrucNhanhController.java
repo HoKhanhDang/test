@@ -25,6 +25,8 @@ public class CauTrucNhanhController extends HttpServlet {
     }
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		response.setContentType("text/html"); // Set Content-Type header
+		response.setHeader("X-Content-Type-Options", "nosniff");
 		List<ChiNhanh> chinhanhs = cnDAO.SelectAllChiNhanh();
 		request.setAttribute("listCN", chinhanhs);
 		request.getRequestDispatcher("/pages/quanlynhansu_tructhuoc.jsp").forward(request, response);

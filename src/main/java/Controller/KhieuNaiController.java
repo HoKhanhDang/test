@@ -27,7 +27,19 @@ public class KhieuNaiController extends HttpServlet {
 	}
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		response.setContentType("text/html"); // Set Content-Type header
+		response.setHeader("X-Content-Type-Options", "nosniff");
 		String action = request.getParameter("action");
+		
+		String sessionToken = (String) request.getAttribute("csrfToken");
+		String requestToken = request.getParameter("csrfToken");
+
+		if (sessionToken == null || !sessionToken.equals(requestToken)) {
+		    // CSRF token is missing or does not match, block the request
+		    response.sendError(HttpServletResponse.SC_FORBIDDEN, "Invalid CSRF token.");
+		    return;
+		}
+		
 		System.out.print(action);
 		
 		try {

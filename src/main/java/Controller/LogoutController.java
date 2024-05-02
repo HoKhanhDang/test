@@ -18,6 +18,8 @@ public class LogoutController extends HttpServlet {
     }
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		response.setContentType("text/html"); // Set Content-Type header
+		response.setHeader("X-Content-Type-Options", "nosniff");
 		HttpSession session = request.getSession();
 		session.removeAttribute("accLogin");
 		response.sendRedirect(request.getContextPath() + "/pages/login.jsp");

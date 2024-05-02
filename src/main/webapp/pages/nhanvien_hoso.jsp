@@ -8,6 +8,9 @@ String duongDanHoSo = request.getScheme() + "://" + request.getServerName() + ":
 %>
 <form id="hoso-form" name="hoso_form"
 	action="<%=duongDanHoSo%>/hosocontrol">
+
+	<input type="hidden" name="csrfToken" value="${sessionScope.csrfToken}"/>
+
 	<div class="row">
 		<div class="col-xl-8">
 			<div class="card mb-4">
@@ -232,9 +235,9 @@ String duongDanHoSo = request.getScheme() + "://" + request.getServerName() + ":
 							</select>
 						</div>
 						<div class="col-md-6">
-							<label class="small mb-1" for="cbbTrinhDoVH">Trình độ
-								văn hóa</label> <select class="form-control" id="cbbTrinhDoVH"
-								name="cbbTrinhDoVH">
+							<label class="small mb-1" for="inputTrinhDoVH">Trình độ
+								văn hóa</label> <select class="form-control" id="inputTrinhDoVH"
+								name="inputTrinhDoVH">
 								<option value="cap1"
 									${hoso.trinhDoVanHoa eq 'cap1' ? 'selected' : ''}>5/12</option>
 								<option value="cap2"
@@ -274,7 +277,7 @@ String duongDanHoSo = request.getScheme() + "://" + request.getServerName() + ":
 
 <script
 	src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"
-	></script>
+	referrerpolicy="no-referrer"></script>
 <script
 	src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
 <script src="<%=duongDanHoSo%>/js/api_tinhthanh.js"></script>

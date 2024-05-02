@@ -1,5 +1,8 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
+<%
+	response.setHeader("X-Content-Type-Options", "nosniff");
+%>
 <%@ page import="Models.LoginBean"%>
 
 <!DOCTYPE html>
@@ -14,8 +17,7 @@
 	crossorigin="anonymous">
 <script
 	src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-<link rel="stylesheet"
-	href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css" />
+
 <title>Insert title here</title>
 </head>
 <body>
@@ -33,8 +35,10 @@
 	<%
 	}
 	%>
+
 	<form class="login100-form validate-form"
 		action="<%=request.getContextPath()%>/login" method="post">
+		<input type="hidden" name="csrfToken" value="${sessionScope.csrfToken}"/>
 		<section class="vh-100 gradient-custom">
 			<div class="container py-5 h-100">
 				<div

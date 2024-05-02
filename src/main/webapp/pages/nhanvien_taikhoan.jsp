@@ -10,6 +10,9 @@ String duongDanHoSo = request.getScheme() + "://" + request.getServerName() + ":
 %>
 <form id="thongtincoban-form" class="form"
 	action="<%=duongDanHoSo%>/taikhoancontrol" method="post">
+
+	<input type="hidden" name="csrfToken" value="${sessionScope.csrfToken}"/>
+
 	<div class="row">
 
 		<c:if test="${hanhdongtacdong == 'edit'}">

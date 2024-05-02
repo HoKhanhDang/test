@@ -1,11 +1,15 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
+<%
+	response.setHeader("X-Content-Type-Options", "nosniff");
+%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <%@ page import="Util.JDBCUtils"%>
 <%@ page import="Models.NhanVien"%>
 <%@ page import="Models.LoginBean"%>
 <%@ page import="Models.BangPhanQuyen"%>
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -14,8 +18,7 @@
 
 <link rel="stylesheet"
 	href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
-<link rel="stylesheet"
-	href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css">
+
 
 <%
 String duongDanIndex = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort()
@@ -117,7 +120,6 @@ String duongDanIndex = request.getScheme() + "://" + request.getServerName() + "
 		src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
 	<script type="text/javascript" src="../js/main.js"></script>
-	<script type="text/javascript" src="../js/chinhanhphongban.js"></script>
 	<script type="text/javascript">
 		$(document).ready(function() {
 			$('#sidebarCollapse').on('click', function() {
@@ -134,6 +136,7 @@ String duongDanIndex = request.getScheme() + "://" + request.getServerName() + "
 <div class="formpopup" id="myForm1"
 	style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);">
 	<form class="form-container" action="<%=duongDanIndex%>/chinhanh">
+		<input type="hidden" name="csrfToken" value="${sessionScope.csrfToken}"/>
 		<h1>Tạo chi nhánh</h1>
 		<input type="hidden" name="action" value="taoCN" />
 
@@ -162,6 +165,7 @@ String duongDanIndex = request.getScheme() + "://" + request.getServerName() + "
 <div class="formpopup" id="myForm2"
 	style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);">
 	<form class="form-container" action="<%=duongDanIndex%>/chinhanh">
+		<input type="hidden" name="csrfToken" value="${sessionScope.csrfToken}"/>
 		<h1>Chỉnh sửa chi nhánh</h1>
 		<input type="hidden" name="action" value="suaCN" />
 
@@ -207,6 +211,7 @@ String duongDanIndex = request.getScheme() + "://" + request.getServerName() + "
 <div class="formpopup" id="myForm3"
 	style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);">
 	<form class="form-container" action="<%=duongDanIndex%>/chinhanh">
+		<input type="hidden" name="csrfToken" value="${sessionScope.csrfToken}"/>
 		<h1>Xem khiếu nại</h1>
 		<input type="hidden" name="action" value="capnhatGDCN" />
 
@@ -234,6 +239,7 @@ String duongDanIndex = request.getScheme() + "://" + request.getServerName() + "
 <div class="formpopup" id="myForm4"
 	style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);">
 	<form class="form-container" action="<%=duongDanIndex%>/chinhanh">
+		<input type="hidden" name="csrfToken" value="${sessionScope.csrfToken}"/>
 		<h1>Xóa</h1>
 		<input type="hidden" name="action" value="xoaCN" />
 
